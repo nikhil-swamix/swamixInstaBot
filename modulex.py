@@ -225,6 +225,7 @@ def timeit(fn,*args,times=1000):
 	print(f"STATS :: TDelta: {(tdelta)*1000}ms")
 	print(f"STATS :: AvgCallTime: {(tdelta/times)*1000}ms")
 	print(f"LOG:: fnoutput == ",fnoutput)
+	
 class Tests:
 	def testWebServerStress():
 		def reqfn():
