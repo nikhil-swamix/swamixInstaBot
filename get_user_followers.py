@@ -69,8 +69,8 @@ def calculate_difference(follower_at_t0,follower_at_t1):
 if __name__ == '__main__':
 	FETCH_MODE=0
 	CALCULATE_MODE=1
-
-	userid=get_userid(user:='_nikhil_swami_')
+	user='_nikhil_swami_'
+	userid=get_userid(user)
 	if FETCH_MODE:
 		try:
 			'''viewer headers are all the headers of request to perfectly imitate like browser
