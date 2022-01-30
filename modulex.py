@@ -1,245 +1,437 @@
+#last fetched on 2022-01-30 18:17:31.259012
+# V2.0
+##     ##  #######  ########  ##     ## ##       ######## ##     ##
+###   ### ##     ## ##     ## ##     ## ##       ##        ##   ##
+#### #### ##     ## ##     ## ##     ## ##       ##         ## ##
+## ### ## ##     ## ##     ## ##     ## ##       ######      ###
+##     ## ##     ## ##     ## ##     ## ##       ##         ## ##
+##     ## ##     ## ##     ## ##     ## ##       ##        ##   ##
+##     ##  #######  ########   #######  ######## ######## ##     ##
+# ▀█████████▄  ▄██   ▄
+#   ███    ███ ███   ██▄
+#   ███    ███ ███▄▄▄███
+# _ ▄███▄▄▄██▀  ▀▀▀▀▀▀███
+# ▀▀███▀▀▀██▄  ▄██   ███
+#   ███    ██▄ ███   ███
+#   ███    ███ ███   ███
+# ▄█████████▀   ▀█████▀
+
+# ███╗   ██╗██╗██╗  ██╗██╗  ██╗██╗██╗
+# ████╗  ██║██║██║ ██╔╝██║  ██║██║██║
+# ██╔██╗ ██║██║█████╔╝ ███████║██║██║
+# ██║╚██╗██║██║██╔═██╗ ██╔══██║██║██║
+# ██║ ╚████║██║██║  ██╗██║  ██║██║███████╗
+# ╚═╝  ╚═══╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝
+# ███████╗██╗    ██╗ █████╗ ███╗   ███╗██╗
+# ██╔════╝██║    ██║██╔══██╗████╗ ████║██║
+# ███████╗██║ █╗ ██║███████║██╔████╔██║██║
+# ╚════██║██║███╗██║██╔══██║██║╚██╔╝██║██║
+# ███████║╚███╔███╔╝██║  ██║██║ ╚═╝ ██║██║
+# ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝
+
+
 import os
+import time
 import random
 import json
 
-usepypy=False
-if usepypy==True:
-	import sys
-	if sys.executable.endswith('pypy3.exe'):
-		import getpass
-		user=getpass.getuser()
-		pathlist=[
-			f'C:\\Users\\{user}\\AppData\\Local\\Programs\\Python\\Python37',
-			f'C:\\Users\\{user}\\AppData\\Local\\Programs\\Python\\Python37\\lib\\site-packages',
-			]
-		sys.path.extend(pathlist)
+
+import sys
 
 # SET DATABASE ------------------
-def setload(path,seperator='\n'): return set(fread(path).split(seperator))
-def setwrite(path,setDataType): fwrite(path,"\n".join(setDataType))
-def setupdate(path,newset):
-	diff=newset - setload(path)
+
+
+def setload(path, seperator="\n"):
+	rset = set(fread(path).split(seperator))
+	rset.remove("") if "" in rset else ""
+	return rset
+
+
+def setwrite(path, setDataType):
+	fwrite(path, "\n".join(setDataType) + "\n")
+
+
+def setupdate(path, newset):
+	diff = newset - setload(path)
 	if diff:
-		fappend(path,'\n'.join(diff))
+		fappend(path, "\n".join(diff))
+
+
 # SET DATABASE ------------------
-def dictdifference(A,B): return dict(A.items() - B.items())
+def dictdifference(A, B):
+	return dict(A.items() - B.items())
+
 
 # FILES SYSTEM-------------------
-def fread(path): f=open(path,'r+',encoding='utf-8').read() ;return f
-def fwrite(fpath,content): f=open(fpath,"w+",errors="ignore") ;f.write(content)
-def fappend(fname,content,suffix='\n'): f=open(fname,"a") ;f.write(content+suffix)
-def touch(fpath):
-	head=os.path.split(fpath)[0]
-	os.makedirs(head,exist_ok=True)
-	if not os.path.exists(fpath):
-		open(fpath,"w+",errors="ignore").close()
-		print('Touched',fpath)
+def fread(path):
+	f = open(path, "r+", encoding="utf-8").read()
+	return f
 
-#JSON----------------------------
-def jloads(string): return json.loads(string) #dict
-def jload(path): 	return json.load(open(path)) #return dict
-def jdumps(dictonary,indent=4): return json.dumps(dictonary,indent=indent) #return string
-def jdump(dictonary,path): 	return json.dump(dictonary,open(path,"w+"),indent=4) #write to disk
-def jdumpline(dictonary,indent=None):return json.dumps(dictonary,indent=indent)
-def jdumplines(dictionary,path): [fappend(path,jdumpline({k:dictionary[k]})) for k in dictionary]
-def jloadlines(path):	
-	jsonlines=open(path,'r').readlines()
-	jldict={}
+
+def fwrite(fpath, content):
+	f = open(fpath, "w+", encoding="utf-8", errors="ignore")
+	f.write(content)
+
+
+def fappend(fname, content, suffix="\n"):
+	f = open(fname, "a")
+	f.write(content + suffix)
+
+
+def touch(fpath, data=""):
+	try:
+		os.makedirs(os.path.split(fpath)[0], exist_ok=True)
+	except:  # noqa: E722
+		pass
+	if not os.path.exists(fpath):
+		fwrite(fpath, data)
+		print("Touched", fpath)
+
+
+def fgetlastmod(path):
+	'''
+	Get Last modified time of a file
+	'''
+	return time.time() - os.path.getmtime(path)
+
+
+def fincrement(cname, lock=None):
+	'''
+	uses a file as incrementer, slow, use in
+	rare cases where you would need persistance storage.
+	Uses lock to prevent I/O race condition.
+	lock is derived from threading module.
+	'''
+	if lock:
+		with lock.acquire() as l:  # noqa: E741
+			c = int(fread(cname))
+			c += 1
+			fwrite(cname, str(c))
+			l.release()
+	else:
+		print("please use lock")
+
+# JSON----------------------------
+
+
+def jloads(string):
+	return json.loads(string)  # dict
+
+
+def jload(path):
+	return json.load(open(path))  # return dict
+
+
+def jdumps(dictonary, indent=4):
+	return json.dumps(dictonary, indent=indent)  # return string
+
+
+def jdump(dictonary, path):
+	return json.dump(dictonary, open(path, "w+"), indent="\t")  # write to disk
+
+
+def jdumpline(dictonary, indent=None):
+	return json.dumps(dictonary, indent=indent)
+
+
+def jdumplines(dictionary, path):
+	[fappend(path, jdumpline({k: dictionary[k]})) for k in dictionary]
+
+
+def jloadlines(path):
+	jsonlines = open(path, "r").readlines()
+	jldict = {}
 	for w in jsonlines:
-		try: jldict.update(jloads(w))
-		except: pass
+		try:
+			jldict.update(jloads(w))
+		except Exception:
+			pass
 	return jldict
 
-def list_files_timesorted(folder):
-	return [folder+x for x in os.listdir(folder)].sort(key=os.path.getmtime)
 
-#TIMESTAMPERS---------------------
+def list_files_timesorted(folder):
+	return [folder + x for x in os.listdir(folder)].sort(key=os.path.getmtime)
+
+
+# TIMESTAMPERS---------------------
+
+
 def datetime(filesafe=1):
 	from datetime import datetime
-	template='%Y%m%dT%H%M%S' if filesafe else '%Y-%m-%dT%H:%M:%S'
+	template = "%Y%m%dT%H%M%S" if filesafe else "%Y-%m-%dT%H:%M:%S"
 	return datetime.today().strftime(template)
 
+
 def date():
-	return datetime().split('T')[0]
+	return datetime().split("T")[0]
+
 
 def now():
 	import time
 	return int(time.time())
 
-#RANDOMIZERS ---------------------
-def shuffle(L): return [pickrandom(L) for x in range(len(L))]
-def randindex(L): return random.randrange(len(L)) # get random index
+
+# RANDOMIZERS ---------------------
+
+
+def shuffle(L):
+	return [poprandom(L) for x in range(len(L))]
+
+
+def randindex(L):
+	return random.randrange(len(L))  # get random index
+
+
 def poprandom(L):
-	i = randindex(L) 
-	L[i], L[-1] = L[-1], L[i] # swap with the last element
-	return L.pop() # pop last element O(1)
+	i = randindex(L)
+	L[i], L[-1] = L[-1], L[i]  # swap with the last element
+	return L.pop()  # pop last element O(1)
 
 
-#GENERATORS___________________________________
-asciirange=('0', '1', '2', '3', '4', '5', '6', '7', '8', '9',  \
-'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', \
-'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', \
-'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', \
-'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', \
-'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
+# GENERATORS___________________________________
+asciirange = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
 def randomstring(length):
-	lenascii=len(asciirange)
-	r=[str(asciirange[random.randrange(lenascii)]) for x in range(length) ]
-	return ''.join(r)
+	lenascii = len(asciirange)
+	r = [str(asciirange[random.randrange(lenascii)]) for x in range(length)]
+	return "".join(r)
 
-def hash(string): import hashlib; return hashlib.md5(string.encode('utf-8')).hexdigest()
 
-#AUTO_PIP______________________________________
-def auto_pip(modulesList,mode='install'):
-	'''
-		+DOC: 
-			automatically Install Pip Packages With Missing Module && upgrades pip if its old, 
-		+USAGE: 
-			auto_pip('mode',[modules,...]) #where mode can be {install,uninstall,download} and modules is
-			auto_pip('install',['pytorch','numpy','etc...']) 
-		+NOTES: downloading can be useful if want to install later 
-		from local source and avoid network cost.
-	'''
-	modulesList=[modulesList] if isinstance(modulesList,str) else modulesList
-	import subprocess as sp
-	proc=sp.run('pip list',stdout=sp.PIPE,stderr=sp.PIPE,text=1)
-	if 'You should consider upgrading' in proc.stderr:
-		upgradeCommand=proc.stderr.split('\'')
-		sp.run(upgradeCommand[1])
+def hash(string):
+	import hashlib
 
-	pipInstallSignal,pipUninstallSignal= 0,0 #declare signals as 0,
-	satisfied={x:(x.lower() in proc.stdout.lower()) for x in modulesList} 
-	for k,v in satisfied.items():
-		print(k+'\t:preinstalled') if v else print(k,'is missing',end=' =|= ')
-		if v==False: pipInstallSignal=1  
-		if v==True: pipUninstallSignal=1 #NAND Condition if true then start uninstalling
-	
-	if mode=='download':
-		proc=sp.run(f'pip download {" ".join(modulesList)} ' ,stdout=sp.PIPE	,shell=0)
-		output=proc.stdout.read().decode('ascii').split('\n')
-		print([x for x in output if 'Successfully' in x][0])
-		proc.kill()
-			
-	if mode=='install': 
-		if pipInstallSignal==True: 
-			proc=sp.run('pip install {} -U'.format(" ".join(modulesList)),text=True,shell=1)
-		else: print(f'{modulesList} were already installed'); return 1 
+	return hashlib.md5(string.encode("utf-8")).hexdigest()
 
-	if mode=='uninstall': 
-		if pipUninstallSignal==True: 
-			proc=sp.run('pip uninstall -y {}'.format(" ".join(modulesList)),text=True,shell=0)
-		else: print(f'\n{modulesList} were already uninstalled'); return 1
 
-	if proc.returncode==0:
-		print('auto_pip Run Success')
-		return proc.returncode
+# REQUIRE: THE DEPENDENCY MANAGER____________________
+def require(modules_list: list[str]):
+	if type(modules_list) is list:
+		pass
+	else:
+		modules_list = [modules_list]
 
-#SIMPLE-DB_________________________________
-def hash_db(hashkey,*hashvalue,dirname='./LOCAL_DATABASE/'):
-	''' 
-		if : an index(hashkey) is given then check is file exists and open and return a dict{}
-		else : if second argument (hashvalue[]) is given then create a dict
-	'''
-	itempath=dirname+hashkey
-	if hashvalue:#write inputted value to memory
-		fwrite(itempath,jdumps(hashvalue[0]))
+	for m in modules_list:
+		try:
+			exec(f'import {m}')
+
+		except Exception as e:
+			print(e)
+			os.system(f"pip install {m}")
+
+
+# SIMPLE-DB_________________________________
+def hash_db(hashkey, *hashvalue, dirname="./LOCAL_DATABASE/"):
+	"""
+	DESC:
+		creates a folder , and stores individual hashes as files.
+		if: an index(hashkey) is given then check is file exists and open and return a dict{}
+		else: if second argument (hashvalue[]) is given then create a dict
+	"""
+	itempath = dirname + hashkey
+	if hashvalue:  # write inputted value to memory
+		fwrite(itempath, jdumps(hashvalue[0]))
 	return jload(itempath)
 
-#THREADING__________________________________
-class Parallelizer:
-	def tpoolmap(fn,*iters,threads=16):
-		from concurrent.futures import ThreadPoolExecutor
-		print(f'__________ThreadPool Made with {threads} threads')
-		POOL=ThreadPoolExecutor(threads)
-		result=POOL.map(fn,*iters)
+
+# THREADING__________________________________
+MAX_THREADS = 128
+
+
+def apply_async(*args):
+	global POOL
+	from concurrent.futures import ThreadPoolExecutor
+
+	try:
+		result = POOL.submit(
+			*args,
+			)
+		return result
+	except Exception:
+		POOL = ThreadPoolExecutor(MAX_THREADS)
+		result = POOL.submit(
+			*args,
+			)
 		return result
 
-#WEBFN______________________________________
 
-def make_session_pool(count=1): return [requests.Session() for x in range(count)]
+# WEBFN______________________________________
+def get_random_proxy():
+	import re
 
-def get_page(url,headers={}): #return a page req object and retrive text later
+	fname = "proxylist.set"
+	sourceurl = "https://free-proxy-list.net/"
+	cacheTime: "seconds" = 30
+
+	if os.path.exists(fname):
+		tdelta = time.time() - os.path.getmtime(fname)
+		if tdelta >= cacheTime:
+			pass
+		else:
+			print(f"LOG: using preexisting proxyDB: created {tdelta}s ago ")
+			return setload(fname).pop()
+
+	page = get_page(sourceurl)
+	iplist = re.findall(r"[\d]+\.[\d]+\.[\d]+\.[\d]+:[\d]+", page.text)
+	proxylist = {"http://" + x for x in iplist}
+	setwrite(fname, proxylist)
+	print("LOG: refreshed proxy list")
+	return proxylist.pop()
+
+
+def make_session_pool(count=1):
+	return [requests.Session() for x in range(count)]
+
+
+UserAgent = {
+	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0"
+}
+
+
+def get_page(url, headers={}):  # return a page req object and retrive text later
 	import requests
-	UserAgent={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0'}
-	# UserAgent={'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60 Instagram 12.0.0.16.90 (iPhone9,4; iOS 10_3_3; en_US; en-US; scale=2.61; gamut=wide; 1080x1920)'}
+
 	headers.update(UserAgent)
-	req=requests.get(url,headers=headers)
-	if not req: #send headers only when invalid response
-		req = requests.get(url,headers=headers)
+	req = requests.get(url, headers=headers)
 	return req
 
-def make_soup(markup): 
+
+def post_page(
+    url,
+    data,
+    headers={},
+):
+	import requests
+
+	r = requests.post(url, json=data, headers=headers)
+	if not r:
+		r = requests.post(url, data=data, headers=headers)
+
+	return
+
+
+def make_soup(markup):
 	from bs4 import BeautifulSoup as soup
-	return soup(markup,'html.parser')
 
-def get_page_soup(url,headers={}): return make_soup(get_page(url,headers=headers).text)
+	try:
+		return soup(markup, "lxml")
+	except Exception as e:
+		return soup(markup, "html.parser")
 
-def make_selenium_driver(headless=True,strategy='normal',timeout=5):
+
+def get_page_soup(url, headers={}):
+	return make_soup(get_page(url, headers=headers).text)
+
+
+def make_selenium_driver(headless=False, strategy="eager", timeout=10):
 	from selenium import webdriver as wd
-	opts = wd.firefox.options.Options();
+
+	opts = wd.firefox.options.Options()
 	opts.page_load_strategy = strategy
-	if headless: 
+	if headless:
 		opts.headless = True
 	# opts.add_argument("--headless")
-	driver=wd.Firefox(options=opts)
+	driver = wd.Firefox(options=opts)
 	driver.set_page_load_timeout(timeout)
-	driver.implicitly_wait(10)	
-	return driver 
+	driver.implicitly_wait(10)
+	return driver
 
-def get_page_selenium(driver,url,new_tab=0):
+
+def get_page_selenium(
+	driver,
+	url,
+	new_tab=0,
+	delay=2,
+	waitcondition=lambda: True,
+	waitcondition_polling=0.2,
+	waitcondition_retries=10,
+):
 	try:
 		if new_tab:
 			driver.execute_script("window.open('{}', '_blank')".format(url))
-
 		driver.get(url)
+
+		while waitcondition() is False:
+			if retry >= waitcondition_retries:
+				break
+			time.sleep(waitcondition_polling)
+
 		return driver.page_source
-	except Exception as e:	
-		print((e))
+	except Exception as e:
+		print(repr(e))
 
-def parse_header(firefoxAllHeaders):
-	serializedHeaders=list((firefoxAllHeaders).values())[0]['headers']
-	return { k:v for k,v in [x.values() for x in serializedHeaders] }
 
-def parse_cookie():
+def parse_header(*firefoxAllHeaders, file=""):
+	if firefoxAllHeaders:
+		rawheader = firefoxAllHeaders[0]
+	if file:
+		rawheader = jload(file)
+	serializedHeaders = list((rawheader).values())[0]["headers"]
+	# print(serializedHeaders)
+	return {k: v for k, v in [x.values() for x in serializedHeaders]}
+
+
+def make_cookie(req):
+	return ";".join([f"{k}={v}" for k, v in req.cookies.items()])
 	...
 
-def wlan_ip():
-    import subprocess
-    result=subprocess.run('ipconfig',stdout=subprocess.PIPE,text=True).stdout.lower()
-    scan=0
-    for i in result.split('\n'):
-        if 'wireless' in i:
-            scan=1
-        if scan:
-            if 'ipv4' in i:
-                print (i.split(':')[1].strip())
 
-# MONITORS _____________________________________
-def timeit(fn,*args,times=1000):
+def wlan_ip():
+	import subprocess
+
+	result = subprocess.run(
+		"ipconfig", stdout=subprocess.PIPE, text=True
+		).stdout.lower()
+	scan = 0
+	for i in result.split("\n"):
+		if "wireless" in i:
+			scan = 1
+		if scan:
+			if "ipv4" in i:
+				print(i.split(":")[1].strip())
+
+
+# Benchmarking _________________
+def timeit(fn, *args, times=1000, verbose=False):
 	import time
-	ts=time.time()
-	print(f'Running: {fn.__name__} | {times} Times')
+
+	ts = time.time()
+	print(f"LOG: run {fn.__name__} X {times} Times") if verbose else None
 	for x in range(times):
-		fnoutput=fn(*args)
-	tdelta=time.time() - ts
-	print(f"STATS :: TDelta: {(tdelta)*1000}ms")
-	print(f"STATS :: AvgCallTime: {(tdelta/times)*1000}ms")
-	print(f"LOG:: fnoutput == ",fnoutput)
-	
+		fnoutput = fn(*args)
+	tdelta = time.time() - ts
+	print(f"LOG: Ttotal: {(tdelta)*1000}ms | time/call: {(tdelta/times)*1000}ms") if verbose else None
+	print(f"LOG: output == ", fnoutput) if verbose else None
+	return tdelta
+
+
 class Tests:
 	def testWebServerStress():
 		def reqfn():
-			d=requests.get(url2)
-			print('fetch success',d.text)
-		url1='http://swamix.com/'
-		url2='http://swamix.com/api/news/tech'
-		Parallelizer.tpoolexec(reqfn,threadCount=100)
+			d = requests.get(url2)
+			print("fetch success", d.text)
 
-if __name__ == '__main__':
-	...
-	url='https://www.teachthought.com/post-sitemap1.xml'	
-	links=set(x.text for x in get_page_soup(url).select('loc'))
-	print(links)
-	# TEST1
-	# print(randomstring(100))
-	# print(hash('_nikhil_swami_'))
+		# url1 = "http://swamix.com/"
+		url2 = "http://swamix.com/api/news/tech"
+		Parallelizer.tpoolexec(reqfn, threadCount=100)  # noqa: F821
+
+
+def i_want_to_release_this_version_on_github():
+	os.system(f"git commit -m \"force committed on \"")
+	os.system("git push -f")
+
+#                  _                       _
+#                 (_)                     | |
+#  _ __ ___   __ _ _ _ __     ___ ___   __| | ___
+# | '_ ` _ \ / _` | | '_ \   / __/ _ \ / _` |/ _ \
+# | | | | | | (_| | | | | | | (_| (_) | (_| |  __/
+# |_| |_| |_|\__,_|_|_| |_|  \___\___/ \__,_|\___|
+# _________________________________________________
+
+
+if __name__ == "__main__":
+	print(randomstring(100))
+	# require(['numpy', 'pandas', 'bs4'])
+
+
+# html body div#root div.a.b.c div.s article.meteredContent div section.de.df.dg.dh.di

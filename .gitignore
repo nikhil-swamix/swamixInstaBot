@@ -1,1 +1,2 @@
-Accounts/
+Accounts/*
+__pycache__

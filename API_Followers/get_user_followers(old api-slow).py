@@ -31,7 +31,7 @@ def get_followers_list(userid='',headers=''):
 		Browser->inspect_element->network_tab->Request_Headers->Cookie.
 	'''
 	if not userid:
-		print('Please Specify UserID userid=123321232 ...')
+		print('Please Specify UserID userid=123321232...')
 		return
 	if not headers:
 		print('Use headers from your browser after you sign in from your account, to imitate get followers request with cookies')
@@ -62,14 +62,26 @@ def calculate_difference(follower_at_t0,follower_at_t1):
 	'''
 	t0=mx.jload(follower_at_t0)
 	t1=mx.jload(follower_at_t1)
-	r=set(t0)-set(t1)
-	print(r)
-	return r
+
+	print("a-b=",set(t0)-set(t1))
+	print("b-a=",set(t1)-set(t0))
+	return set(t0)-set(t1)
+
+def move_userdata_to_respective_folders():
+	os.chdir('./Data/')
+	for x in os.listdir():
+		if os.path.isfile(x):
+			user=x.split('@')[0]
+			mx.touch(f"{user}/")
+			os.rename(x,f"{user}/{x}")
+
 
 if __name__ == '__main__':
 	FETCH_MODE=0
 	CALCULATE_MODE=1
 	user='_nikhil_swami_'
+	# user='kruz__022'
+	# user='manasa._.sharma'
 	userid=get_userid(user)
 	if FETCH_MODE:
 		try:
@@ -86,18 +98,22 @@ if __name__ == '__main__':
 			provided cookie is a dummy cookie, please get new one from browser, it will almost look likethis dummy'''
 			viewer_cookie={'Cookie':'mid=YHDvlwALAAH4BiG2WwETlfSomHUD; ig_did=81C89A5B-5478-41A0-8A1A-95481F38BB05; ig_nrcb=1; sessionid=2237d911879%3A4KZ1W25kr7DNiB%3A25; shbid=2658; shbts=1621143238.6504378; fbm_124024574287414=base_domain=.instagram.com; rur=FTW; fbsr_124024574287414=7u1R4V8VkZ_ZR6d7L6fd_WPOIZR1IsAutbczF_lqKNQ.eyJ1c2VyX2lkIjoiMTAwMDAyNDM1NTEwNjQ3IiwiY29kZSI6IkFRQllXam1qZERST1pycnF5Z3JrcEVaT0hyek9waGY2SUZ0VVpIdzhMbWQ3Z3hZQjZXeVNvR3RUUGRXWVVscXdCN1NDS2Nwb0ZpbjFFRFBiWktqU085Q0lrRVREZk1VNDdfbzVyMHFMYkI1NUdqd0FIOTZUNThNNTFoMGlPNUFFWWh4TGo2b1drVkVjM2N3TmJFUVUzSmQteVdwSUJwRVpmaldFYllKWFladGgwQUI5ZG5naDU1cXhxdVdKMXlYTFhiSHVwOHdDRFcxN2lzSGdXLWo0UU9PZm84NzQ1NGpHWHNoY2JGUlFtM1N5THA0eGlYVE44VFNhTUU0NVM0c3FwbURvMFpHdnVlb2pKUTQyT3VmcFZ2MGN3aHRVLWhDYzlmZEF1ZEhiblBlWWY0OEdQbXVNbnpaN2MyODdhekRSSFZSbTRIb2g1eFVDdHliUFNNTGlHSUJ2Iiwib2F1dGhfdG9rZW4iOiJFQUFCd3pMaXhuallCQUZwWGxqcFdEeDBmeExLU2FYcXVqd2tuU2hNZGhYWGtNTDFWclpCaUFTTXozSElZczFzNjJ0YWg0aFpDbVJXeHRoWkJBdUF3Sng0ZG5IUnV3Rmo5VDh5Z0tva1pBNzg1bTE2cmZMeEN4cnpVSk9ZQU0yR2tsUjJLbEFoUjRQYzFtYjltUXBCdnRnczlRbnNUdWVjWkNVWkNzZmNuN2FHbGoyOHE1QXdOdGciLCJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTYyMDcyNjY3OX0; fbsr_124024574287414=7u1R4V8VkZ_ZR6d7L6fd_WPOIZR1IsAutbczF_lqKNQ.eyJ1c2VyX2lkIjoiMTAwMDAyNDM1NTEwNjQ3IiwiY29kZSI6IkFRQllXam1qZERST1pycnF5Z3JrcEVaT0hyek9waGY2SUZ0VVpIdzhMbWQ3Z3hZQjZXeVNvR3RUUGRXWVVscXdCN1NDS2Nwb0ZpbjFFRFBiWktqU085Q0lrRVREZk1VNDdfbzVyMHFMYkI1NUdqd0FIOTZUNThNNTFoMGlPNUFFWWh4TGo2b1drVkVjM2N3TmJFUVUzSmQteVdwSUJwRVpmaldFYllKWFladGgwQUI5ZG5naDU1cXhxdVdKMXlYTFhiSHVwOHdDRFcxN2lzSGdXLWo0UU9PZm84NzQ1NGpHWHNoY2JGUlFtM1N5THA0eGlYVE44VFNhTUU0NVM0c3FwbURvMFpHdnVlb2pKUTQyT3VmcFZ2MGN3aHRVLWhDYzlmZEF1ZEhiblBlWWY0OEdQbXVNbnpaN2MyODdhekRSSFZSbTRIb2g1eFVDdHliUFNNTGlHSUJ2Iiwib2F1dGhfdG9rZW4iOiJFQUFCd3pMaXhuallCQUZwWGxqcFdEeDBmeExLU2FYcXVqd2tuU2hNZGhYWGtNTDFWclpCaUFTTXozSElZczFzNjJ0YWg0aFpDbVJXeHRoWkJBdUF3Sng0ZG5IUnV3Rmo5VDh5Z0tva1pBNzg1bTE2cmZMeEN4cnpVSk9ZQU0yR2tsUjJLbEFoUjRQYzFtYjltUXBCdnRnczlRbnNUdWVjWkNVWkNzZmNuN2FHbGoyOHE1QXdOdGciLCJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTYyMDcyNjY3OX0; ds_user_id=2237911879; csrftoken=yPFKAwVoEdG9lugheIDRGKsCUQyQNrOx'}
 			followers_list=get_followers_list(userid=userid,headers=viewer_cookie) #FETCH DATA
-
-		write_to_disk=mx.jdump(followers_list,f"./Data/{user}@{mx.datetime()}")
+		mx.touch(f'./Data/{user}/')
+		write_to_disk=mx.jdump(followers_list,f"./Data/{user}/{user}@{mx.datetime()}")
 		mylist=[f'{x:20}' for x in followers_list]
 		print('\\'.join(mylist))
 
 	if CALCULATE_MODE:
 		print('these users have unfollowed')
-		datafolder='Data/'
-		timeline=[datafolder+x for x in os.listdir(datafolder) if re.match(fr'{user}@[\d]{{8}}T[\d]{{6}}',x) ]
+		datafolder=f'./Data/{user}/'
+		timeline=[datafolder+x for x in os.listdir(datafolder)  if re.match(fr'{user}@[\d]',x)]
 		# print(timeline)
-		calculate_difference(timeline[-4],timeline[-1])
+		calculate_difference(timeline[-1],timeline[-2])
 
+
+
+
+	# 
 	# string='_nikhil_swami_@20210523T220136'
 	# print()
 	# url='https://i.instagram.com/api/v1/users/2280322955/info/'
