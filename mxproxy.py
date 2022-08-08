@@ -16,7 +16,7 @@ def progressive_import():
 	importlevel = "./"
 	try:
 		import modulex as mx
-		print("mx importlevel", importlevel)
+		# print("mx importlevel", importlevel)
 	except Exception:
 		for i in range(4):
 			importlevel += "../"

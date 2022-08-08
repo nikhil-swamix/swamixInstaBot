@@ -1,4 +1,4 @@
-#last fetched on 2022-01-30 18:17:31.259012
+#last fetched on 2022-08-09 00:12:56.517162
 # V2.0
 ##     ##  #######  ########  ##     ## ##       ######## ##     ##
 ###   ### ##     ## ##     ## ##     ## ##       ##        ##   ##
@@ -119,7 +119,7 @@ def jloads(string):
 
 
 def jload(path):
-	return json.load(open(path))  # return dict
+	return json.load(open(path,encoding='utf-8',errors='ignore'))  # return dict
 
 
 def jdumps(dictonary, indent=4):
@@ -291,7 +291,7 @@ UserAgent = {
 def get_page(url, headers={}):  # return a page req object and retrive text later
 	import requests
 
-	headers.update(UserAgent)
+	# headers.update(UserAgent)
 	req = requests.get(url, headers=headers)
 	return req
 
@@ -307,7 +307,7 @@ def post_page(
 	if not r:
 		r = requests.post(url, data=data, headers=headers)
 
-	return
+	return r
 
 
 def make_soup(markup):
@@ -371,9 +371,24 @@ def parse_header(*firefoxAllHeaders, file=""):
 	return {k: v for k, v in [x.values() for x in serializedHeaders]}
 
 
+def parse_raw_headers(fpath, log=0):
+	headers = {}
+	for x in open(fpath).read().split('\n'):
+		d = dict([[y.strip() for y in x.split(':', 1)]])
+		headers.update(d)
+		if log: 
+			print(d) 
+	return headers
+
+
 def make_cookie(req):
 	return ";".join([f"{k}={v}" for k, v in req.cookies.items()])
-	...
+
+
+def auto_encoder(d):
+	'''encode dict to url get params'''
+	string = "&".join([f"{k}={urllib.parse.quote_plus(str(v))}" for k, v in d.items()])
+	return string
 
 
 def wlan_ip():

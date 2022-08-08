@@ -1,0 +1,21 @@
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: en-US,en;q=0.9
+content-length: 39
+content-type: application/x-www-form-urlencoded
+cookie: mid=Yu126QALAAGGoBgH3bKlKshXlCio; ig_did=187AB4B1-7596-45CE-9BA7-30ED0CE6A38A; ig_nrcb=1; ds_user_id=2237911879; shbid="2658\0542237911879\0541691265826:01f72583a2f4314be2c6315256670e5dd131e1d6e8e2f3394077eb9fe2b24f509b909663"; shbts="1659729826\0542237911879\0541691265826:01f7f65a70df02ffe8f814dac9bbe6bea61cfa5bcd346348f301fc2e4c3972f56ebcdafe"; datr=p3ftYv765RR8VHCG45T9uRJ2; ig_direct_region_hint="RVA\0542237911879\0541691499749:01f739f28c99c784d26bf2f161c083d9bb2b4182091a5fdd4e40911da203e5c2f4aaaa3e"; csrftoken=LKGiJnVamfcZmmz6Lq7pV9u4PlSPWUDM; sessionid=2237911879%3AbAGI4SaOtDoaMr%3A26%3AAYeBlP8HmLoZWmgumdrHvHDpG3RSMYiR_Eg4MzwL8w; rur="NAO\0542237911879\0541691524346:01f70900e0ee56f134ce7371d16b7d3da110b0b4cc4b34d50c19028fa0f4682412ea1910"
+dnt: 1
+origin: https://www.instagram.com
+referer: https://www.instagram.com/
+sec-ch-ua: " Not;A Brand";v="99", "Microsoft Edge";v="103", "Chromium";v="103"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+sec-fetch-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: same-site
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.134 Safari/537.36 Edg/103.0.1264.77
+x-asbd-id: 198387
+x-csrftoken: LKGiJnVamfcZmmz6Lq7pV9u4PlSPWUDM
+x-ig-app-id: 936619743392459
+x-ig-www-claim: hmac.AR0GmMIoLW2L0kFlDLev9_06WuXFhx2Yqp18XklF8Aryzxah
+x-instagram-ajax: 1005984596
